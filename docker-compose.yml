@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  worker:
+    build: .
+    depends_on:
+      - our-redis
+    environment:
+      REDIS_URL: our-redis:6379
+    networks:
+      - backend
+    command: python /opt/nbit/src/worker.py --listen_topic test --broadcast_topic broadcast
+
+  api:
+    build: .
+    depends_on:
+      - our-redis
+    environment:
+      REDIS_URL: our-redis:6379
+    networks:
+      - backend
+    command: python /opt/nbit/src/api.py --send_topic test --broadcast_topic broadcast
+
+  our-redis:
+    image: redis
+    expose:
+      - 6379
+    networks:
+      - backend
+
+networks:
+  backend:
